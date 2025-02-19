@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Log Form</title>
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+        crossorigin="anonymous" 
+    />
+    <style>
+        form {
+            font-size: 20px !important;
+            width: min(800px, 90%);
+        }
+    </style>
+</head>
+<body>
+    <form id="truckForm" class="mx-auto my-5 shadow p-4" method="POST">
+        <div class="mb-3 d-flex">
+            <label class="mx-3" for="truckNumber">Truck Number:</label>
+            <select class="form-select" id="truckNumber" name="truckNumber" required>
+                <option value="" selected disabled>Select a Truck</option>
+                <option value="Truck 1">Truck 1</option>
+                <option value="Truck 2">Truck 2</option>
+                <option value="Truck 3">Truck 3</option>
+                <option value="Truck 4">Truck 4</option>
+                <option value="Truck 5">Truck 5</option>
+                <option value="Truck 6">Truck 6</option>
+                <option value="Truck 7">Truck 7</option>
+                <option value="Truck 8">Truck 8</option>
+                <option value="Truck 9">Truck 9</option>
+                <option value="Truck 10">Truck 10</option>
+            </select>
+
+        </div>
+        <div class="mb-3 d-flex">
+            <label class="mx-3" for="date">Date:</label>
+            <input type="date" class="mx-3 form-control" id="date" name="date" required>
+        </div>
+        <div class="mb-3 d-flex">
+            <label class="mx-3" for="kms">Total KMs:</label>
+            <input type="number" class="mx-3 form-control" id="kms" name="kms" required>
+        </div>
+        <div class="mb-3 d-flex">
+            <label class="mx-3" for="description">Description:</label>
+            <textarea class="mx-3 form-control" id="description" name="description" required></textarea>
+        </div>
+        <div class="mb-3 d-flex">
+            <label class="mx-3" for="doneBy">Done By:</label>
+            <input type="text" class="mx-3 form-control" id="doneBy" name="doneBy" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <script>
+        const url = "https://script.google.com/macros/s/AKfycbyCcF9D8uaI8wnV3GmsI2n2_a2f-fZe8gqyAIUW02nkcuw73V0low-7OaOcU04opuyahQ/exec"; 
+
+        // Fetch truck numbers from Google Sheets
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === "success") {
+                    let select = document.getElementById("truckNumber");
+                    data.trucks.forEach(truck => {
+                        let option = document.createElement("option");
+                        option.value = truck;
+                        option.textContent = truck;
+                        select.appendChild(option);
+                    });
+                } else {
+                    alert("Error fetching truck list: " + JSON.stringify(data));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+
+        // Handle form submission
+        document.getElementById("truckForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            var formData = new FormData(this);
+            
+            fetch(url, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === "success") {
+                    alert("Data successfully sent to sheet: " + data.sheet);
+                    document.getElementById("truckForm").reset();
+                } else {
+                    alert("Error sending data! Response: " + JSON.stringify(data));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+        });
+    </script>
+</body>
+</html>

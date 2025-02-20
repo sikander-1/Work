@@ -35,6 +35,7 @@
                 <option value="Truck 1idw678">Truck 1idw678</option>
                 <option value="Truck 1ikt171">Truck 1ikt171</option>
                 <option value="Truck 1hino">Truck 1hino</option>
+            
             </select>
 
         </div>
@@ -77,6 +78,24 @@
         // //         }
         // //     })
         //     .catch(error => alert("Error: " + error));
+        // Fetch truck numbers from Google Sheets (only predefined ones)
+fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        if (data.result === "success") {
+            let select = document.getElementById("truckNumber");
+            select.innerHTML = '<option value="" selected disabled>Select a Truck</option>'; // Clear previous options
+            data.trucks.forEach(truck => {
+                let option = document.createElement("option");
+                option.value = truck;
+                option.textContent = truck;
+                select.appendChild(option);
+            });
+        } else {
+            alert("Error fetching truck list: " + JSON.stringify(data));
+        }
+    })
+    .catch(error => alert("Error: " + error));
 
         // Handle form submission
         document.getElementById("truckForm").addEventListener("submit", function(event) {

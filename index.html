@@ -61,22 +61,22 @@
         const url = "https://script.google.com/macros/s/AKfycbyCcF9D8uaI8wnV3GmsI2n2_a2f-fZe8gqyAIUW02nkcuw73V0low-7OaOcU04opuyahQ/exec"; 
 
         // Fetch truck numbers from Google Sheets
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === "success") {
-                    let select = document.getElementById("truckNumber");
-                    data.trucks.forEach(truck => {
-                        let option = document.createElement("option");
-                        option.value = truck;
-                        option.textContent = truck;
-                        select.appendChild(option);
-                    });
-                } else {
-                    alert("Error fetching truck list: " + JSON.stringify(data));
-                }
-            })
-            .catch(error => alert("Error: " + error));
+        // // fetch(url)
+        // //     .then(response => response.json())
+        // //     .then(data => {
+        // //         if (data.result === "success") {
+        // //             let select = document.getElementById("truckNumber");
+        // //             data.trucks.forEach(truck => {
+        // //                 let option = document.createElement("option");
+        // //                 option.value = truck;
+        // //                 option.textContent = truck;
+        // //                 select.appendChild(option);
+        // //             });
+        // //         } else {
+        // //             alert("Error fetching truck list: " + JSON.stringify(data));
+        // //         }
+        // //     })
+        //     .catch(error => alert("Error: " + error));
 
         // Handle form submission
         document.getElementById("truckForm").addEventListener("submit", function(event) {

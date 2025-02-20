@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,7 +34,7 @@
                 <option value="Truck 1gwr711">Truck 1gwr711</option>
                 <option value="Truck 1idw678">Truck 1idw678</option>
                 <option value="Truck 1ikt171">Truck 1ikt171</option>
-                <option value="Truck 1hino">Truck 1hino</option>
+                <option value="Truck 1hino">Truck 1ded133</option>
             
             </select>
 
@@ -120,4 +120,158 @@ fetch(url)
         });
     </script>
 </body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truck Log Form</title>
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+        crossorigin="anonymous" 
+    />
+    <style>
+        form {
+            font-size: 20px !important;
+            width: min(800px, 90%);
+        }
+    </style>
+</head>
+<body>
+    <h1 class="text-center fw-bold fs-1 fs-md-2 fs-sm-3 mb-4">Truck Log Form</h1>
+    <form id="truckForm" class="mx-auto my-5 shadow p-4" method="POST">
+        <div class="mb-3">
+            <label for="type">Type:</label>
+            <select class="form-select" id="type" name="type" required>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Failure">Failure</option>
+            </select>
+        </div>
+    
+        <div class="mb-3">
+            <label for="truckNumber">Truck Number:</label>
+            <select class="form-select" id="truckNumber" name="truckNumber" required>
+                <option value="" selected disabled>Select a Truck</option>
+            </select>
+        </div>
+    
+        <div class="mb-3">
+            <label for="date">Date:</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+    
+        <div class="mb-3">
+            <label for="kms">Total KMs:</label>
+            <input type="number" class="form-control" id="kms" name="kms" required>
+        </div>
+    
+        <div class="mb-3">
+            <label for="description">Description:</label>
+            <textarea class="form-control" id="description" name="description" required></textarea>
+        </div>
+    
+        <!-- Maintenance: Done By -->
+        <div class="mb-3" id="doneByField">
+            <label for="doneBy">Done By:</label>
+            <input type="text" class="form-control" id="doneBy" name="doneBy">
+        </div>
+    
+        <!-- Failure: Reported By (Initially Hidden) -->
+        <div class="mb-3 d-none" id="reportedByField">
+            <label for="reportedBy">Reported By:</label>
+            <input type="text" class="form-control" id="reportedBy" name="reportedBy">
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <script>
+        const url = "https://script.google.com/macros/s/AKfycbyCcF9D8uaI8wnV3GmsI2n2_a2f-fZe8gqyAIUW02nkcuw73V0low-7OaOcU04opuyahQ/exec"; 
+    
+        // Fetch truck numbers from Google Sheets
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === "success") {
+                    let select = document.getElementById("truckNumber");
+                    select.innerHTML = '<option value="" selected disabled>Select a Truck</option>';
+                    data.trucks.forEach(truck => {
+                        let option = document.createElement("option");
+                        option.value = truck;
+                        option.textContent = truck;
+                        select.appendChild(option);
+                    });
+                } else {
+                    alert("Error fetching truck list: " + JSON.stringify(data));
+                }
+            })
+            .catch(error => alert("Error: " + error));
+    
+        // Show/hide fields based on Maintenance or Failure selection
+        // Handle form submission
+        document.getElementById("type").addEventListener("change", function() {
+    const type = this.value;
+    const doneByField = document.getElementById("doneByField");
+    const reportedByField = document.getElementById("reportedByField");
+    const doneByInput = document.getElementById("doneBy");
+    const reportedByInput = document.getElementById("reportedBy");
+
+    if (type === "Maintenance") {
+        doneByField.classList.remove("d-none");
+        reportedByField.classList.add("d-none");
+        doneByInput.required = true;
+        reportedByInput.required = false;
+        reportedByInput.value = ""; // Clear reportedBy input
+    } else {
+        doneByField.classList.add("d-none");
+        reportedByField.classList.remove("d-none");
+        doneByInput.required = false;
+        reportedByInput.required = true;
+        doneByInput.value = ""; // Clear doneBy input
+    }
+});
+    
+
+    
+        // Handle form submission
+        document.getElementById("truckForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+
+    // Ensure only the correct fields are sent
+    if (formData.get("type") === "Maintenance") {
+        formData.delete("reportedBy");
+    } else if (formData.get("type") === "Failure") {
+        formData.delete("doneBy");
+    }
+
+    console.log("🚀 Sending Form Data:", Object.fromEntries(formData)); // Debugging
+
+    fetch("https://script.google.com/macros/s/AKfycbxbTHl60MkEr_JBiYNaeRRzCQBk0zHMYY-NlPnvntSLVMDdkAw0HFqecJOlZIou-jc_Og/exec", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Server Response:", data);
+        if (data.result === "success") {
+            alert("Data successfully sent!");
+            document.getElementById("truckForm").reset();
+        } else {
+            alert("❌ Error: " + JSON.stringify(data));
+        }
+    })
+    .catch(error => console.error("❌ Fetch Error:", error));
+});
+
+    </script>
+    </body>
 </html>

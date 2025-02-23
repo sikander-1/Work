@@ -150,7 +150,7 @@ fetch(url)
         <div class="mb-3">
             <label for="type">Type:</label>
             <select class="form-select" id="type" name="type" required>
-                <option value="Select a Option">Select a Option</option>
+                <option value="" selected>Select a Option</option>
                 <option value="Maintenance done">Maintenance done</option>
                 <option value="fault report">fault report</option>
             </select>
@@ -159,7 +159,7 @@ fetch(url)
         <div class="mb-3">
             <label for="truckNumber">Truck Number:</label>
             <select class="form-select" id="truckNumber" name="truckNumber" required>
-                <option value="" selected disabled>Select a Truck</option>
+                <option     value="" selected disabled>Select a Truck</option>
             </select>
         </div>
     
@@ -195,42 +195,47 @@ fetch(url)
     
     <script>
         const url = "https://script.google.com/macros/s/AKfycbyCcF9D8uaI8wnV3GmsI2n2_a2f-fZe8gqyAIUW02nkcuw73V0low-7OaOcU04opuyahQ/exec"; 
-    
-        // Fetch truck numbers from Google Sheets
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === "success") {
-                    let select = document.getElementById("truckNumber");
-                    select.innerHTML = '<option value="" selected disabled>Select a Truck</option>';
-                    data.trucks.forEach(truck => {
-                        let option = document.createElement("option");
-                        option.value = truck;
-                        option.textContent = truck;
-                        select.appendChild(option);
-                    });
-                } else {
-                    alert("Error fetching truck list: " + JSON.stringify(data));
-                }
-            })
-            .catch(error => alert("Error: " + error));
-    
-        // Show/hide fields based on Maintenance or Failure selection
-        // Handle form submission
-        document.getElementById("type").addEventListener("change", function() {
+
+// Fetch truck numbers from Google Sheets
+fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        if (data.result === "success") {
+            let select = document.getElementById("truckNumber");
+            select.innerHTML = '<option value="" selected disabled>Select a Truck</option>';
+            data.trucks.forEach(truck => {
+                let option = document.createElement("option");
+                option.value = truck;
+                option.textContent = truck;
+                select.appendChild(option);
+            });
+        } else {
+            alert("Error fetching truck list: " + JSON.stringify(data));
+        }
+    })
+    .catch(error => alert("Error: " + error));
+
+// Show/hide fields based on Maintenance or Fault Report selection
+document.getElementById("type").addEventListener("change", async function() {
     const type = this.value;
     const doneByField = document.getElementById("doneByField");
     const reportedByField = document.getElementById("reportedByField");
     const doneByInput = document.getElementById("doneBy");
     const reportedByInput = document.getElementById("reportedBy");
 
-    if (type === "Maintenance") {
+    if (type === "Maintenance done") {
         doneByField.classList.remove("d-none");
         reportedByField.classList.add("d-none");
         doneByInput.required = true;
         reportedByInput.required = false;
         reportedByInput.value = ""; // Clear reportedBy input
-    } else {
+        
+        // Fetch the current user's email for "Done By"
+        const emailResponse = await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?action=getUserEmail");
+        const emailData = await emailResponse.json();
+        doneByInput.value = emailData.email || ""; // Auto-fill with user email
+    } 
+    else if (type === "fault report") {
         doneByField.classList.add("d-none");
         reportedByField.classList.remove("d-none");
         doneByInput.required = false;
@@ -238,19 +243,17 @@ fetch(url)
         doneByInput.value = ""; // Clear doneBy input
     }
 });
-    
 
-    
-        // Handle form submission
-        document.getElementById("truckForm").addEventListener("submit", function(event) {
+// Handle form submission
+document.getElementById("truckForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
     const formData = new FormData(this);
 
     // Ensure only the correct fields are sent
-    if (formData.get("type") === "Maintenance") {
+    if (formData.get("type") === "Maintenance done") {
         formData.delete("reportedBy");
-    } else if (formData.get("type") === "Failure") {
+    } else if (formData.get("type") === "fault report") {
         formData.delete("doneBy");
     }
 

@@ -231,7 +231,7 @@ document.getElementById("type").addEventListener("change", async function() {
         reportedByInput.value = ""; // Clear reportedBy input
         
         // Fetch the current user's email for "Done By"
-        const emailResponse = await fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?action=getUserEmail");
+        const emailResponse = await fetch("https://script.google.com/macros/s/AKfycbxbTHl60MkEr_JBiYNaeRRzCQBk0zHMYY-NlPnvntSLVMDdkAw0HFqecJOlZIou-jc_Og/exec?action=getUserEmail");
         const emailData = await emailResponse.json();
         doneByInput.value = emailData.email || ""; // Auto-fill with user email
     } 
